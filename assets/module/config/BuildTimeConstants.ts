@@ -11,11 +11,13 @@ const keys = (Object.keys(buildTimeConstants) as (keyof typeof buildTimeConstant
 /* 游戏运行环境 */
 export class BuildTimeConstants {
     toString() {
-        const keyNameMaxLen = keys.reduce((len, key) => Math.max(len, key.length), 0);
+        const keyNameMaxLen = keys.reduce<number>((len, key) => Math.max(len, String(key).length), 0);
         const enviroment = `${keys.map((key) => {
             const value = buildTimeConstants[key];
             const valueRep = typeof value === 'boolean' ? (value ? 'true' : 'false') : value;
-            return `\n${key.padStart(keyNameMaxLen, ' ')} : ${valueRep}`;
+            const keyName = String(key);
+            const padding = new Array(Math.max(0, keyNameMaxLen - keyName.length) + 1).join(' ');
+            return `\n${padding}${keyName} : ${valueRep}`;
         })}`;
 
         console.log(enviroment);

@@ -30,9 +30,21 @@ export interface UIConfig {
     /** 窗口层级 */
     layer: string;
     /** 预制资源相对路径 */
-    prefab: string;
+    prefab?: string;
     /** 是否自动施放（默认自动释放） */
     destroy?: boolean;
+
+    /** -----FairyGUI属性----- */
+    /** FairyGUI 包名 */
+    fguiPackage?: string;
+    /** FairyGUI 组件名 */
+    fguiComponent?: string;
+    /** FairyGUI 发布资源路径；默认 UI/{fguiPackage}，相对 resources 或 Asset Bundle 根目录 */
+    fguiPackagePath?: string;
+    /** 是否在打开时铺满 GRoot（默认铺满） */
+    fguiMakeFullScreen?: boolean;
+    /** 关闭并销毁界面时是否卸载 FairyGUI 包（默认不卸载，避免共享包被误释放） */
+    fguiReleasePackage?: boolean;
 
     /** -----弹窗属性----- */
     /** 是否触摸非窗口区域关闭（默认关闭） */
@@ -43,6 +55,42 @@ export interface UIConfig {
     safeArea?: boolean;
     /** 界面弹出时的节点排序索引 */
     siblingIndex?: number;
+}
+
+/** 是否使用 FairyGUI 界面配置 */
+export function isFairyUIConfig(config: UIConfig): boolean {
+    return !!(config.fguiPackage || config.fguiComponent || config.fguiPackagePath);
+}
+
+/** 获取 FairyGUI 包名 */
+export function getFairyPackageName(config: UIConfig): string {
+    if (config.fguiPackage) return config.fguiPackage;
+    if (config.fguiPackagePath) {
+        const segments = config.fguiPackagePath.split("/");
+        return segments[segments.length - 1];
+    }
+    throw new Error("FairyGUI界面配置缺少 fguiPackage");
+}
+
+/** 获取 FairyGUI 组件名 */
+export function getFairyComponentName(config: UIConfig): string {
+    if (config.fguiComponent) return config.fguiComponent;
+    throw new Error("FairyGUI界面配置缺少 fguiComponent");
+}
+
+/** 获取 FairyGUI 包资源路径 */
+export function getFairyPackagePath(config: UIConfig): string {
+    return config.fguiPackagePath ?? `UI/${getFairyPackageName(config)}`;
+}
+
+/** 获取界面在层级管理器中的唯一键 */
+export function getUIConfigKey(config: UIConfig): string {
+    if (isFairyUIConfig(config)) {
+        const bundle = config.bundle ?? "resources";
+        return `${bundle}:${getFairyPackageName(config)}/${getFairyComponentName(config)}`;
+    }
+    if (config.prefab) return config.prefab;
+    throw new Error("界面配置缺少 prefab 或 FairyGUI 配置信息");
 }
 
 /** 游戏元素配置 */

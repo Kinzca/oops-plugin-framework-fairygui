@@ -31,7 +31,7 @@ export class WebSock implements ISocket {
     connect(options: any) {
         if (this._ws) {
             if (this._ws.readyState === WebSocket.CONNECTING) {
-                Logger.logNet("websocket connecting, wait for a moment...")
+                Logger.instance.logNet("websocket connecting, wait for a moment...")
                 return false;
             }
         }

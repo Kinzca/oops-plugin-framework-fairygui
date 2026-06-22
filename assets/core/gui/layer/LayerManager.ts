@@ -9,7 +9,10 @@ import { LayerNotify } from "./LayerNotify";
 import { LayerPopUp } from "./LayerPopup";
 import { LayerUI } from "./LayerUI";
 import { LayerUIElement, UIParam } from "./LayerUIElement";
-import { UIConfig } from "./UIConfig";
+import { getUIConfigKey, UIConfig } from "./UIConfig";
+import { FairyLayerDialog } from "./fairy/FairyLayerDialog";
+import { FairyLayerPopUp } from "./fairy/FairyLayerPopup";
+import { FairyLayerUI } from "./fairy/FairyLayerUI";
 
 /** 界面层级管理器 */
 export class LayerManager {
@@ -37,9 +40,9 @@ export class LayerManager {
     private clsLayers: Map<string, any> = new Map();
 
     constructor() {
-        this.clsLayers.set(LayerTypeCls.UI, LayerUI);
-        this.clsLayers.set(LayerTypeCls.PopUp, LayerPopUp);
-        this.clsLayers.set(LayerTypeCls.Dialog, LayerDialog);
+        this.clsLayers.set(LayerTypeCls.UI, FairyLayerUI);
+        this.clsLayers.set(LayerTypeCls.PopUp, FairyLayerPopUp);
+        this.clsLayers.set(LayerTypeCls.Dialog, FairyLayerDialog);
         this.clsLayers.set(LayerTypeCls.Notify, LayerNotify);
         this.clsLayers.set(LayerTypeCls.Game, LayerGame);
         this.clsLayers.set(LayerTypeCls.Node, null);
@@ -198,6 +201,8 @@ export class LayerManager {
                 console.error(`打开编号为【${uiid}】的界面失败，配置信息不存在`);
             }
         }
+
+        if (config) key = getUIConfigKey(config);
         return { key, config };
     }
 
@@ -235,7 +240,7 @@ export class LayerManager {
         let info = this.getInfo(uiid);
         let layer = this.uiLayers.get(info.config.layer);
         if (layer) {
-            layer.show(info.config.prefab);
+            layer.show(info.key);
         }
         else {
             console.error(`打开编号为【${uiid}】的界面失败，界面层不存在`);
@@ -252,7 +257,7 @@ export class LayerManager {
         let info = this.getInfo(uiid);
         let layer = this.uiLayers.get(info.config.layer);
         if (layer) {
-            layer.remove(info.config.prefab);
+            layer.remove(info.key);
         }
         else {
             console.error(`移除编号为【${uiid}】的界面失败，界面层不存在`);
@@ -269,7 +274,7 @@ export class LayerManager {
         let info = this.getInfo(uiid);
         let layer = this.uiLayers.get(info.config.layer);
         if (layer) {
-            layer.removeCache(info.config.prefab);
+            layer.removeCache(info.key);
         }
         else {
             console.error(`移除编号为【${uiid}】的界面失败，界面层不存在`);
@@ -296,7 +301,7 @@ export class LayerManager {
                     let layer = this.uiLayers.get(comp.state.config.layer);
                     if (layer) {
                         // @ts-ignore 注：不对外使用
-                        layer.removeCache(comp.state.config.prefab);
+                        layer.removeCache(getUIConfigKey(comp.state.config));
                     }
                 }
             }
@@ -332,7 +337,7 @@ export class LayerManager {
         let result = false;
         let layer = this.uiLayers.get(info.config.layer);
         if (layer) {
-            result = layer.has(info.config.prefab);
+            result = layer.has(info.key);
         }
         else {
             console.error(`验证编号为【${uiid}】的界面失败，界面层不存在`);
@@ -352,7 +357,7 @@ export class LayerManager {
         let result: Node = null!;
         let layer = this.uiLayers.get(info.config.layer);
         if (layer) {
-            result = layer.get(info.config.prefab);
+            result = layer.get(info.key);
         }
         else {
             console.error(`获取编号为【${uiid}】的界面失败，界面层不存在`);
