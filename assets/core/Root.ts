@@ -5,6 +5,7 @@
  * @LastEditTime: 2023-08-28 10:02:57
  */
 import { _decorator, Component, director, Game, game, JsonAsset, Node, profiler, resources, screen, sys } from "cc";
+import * as fgui from "fairygui-cc";
 import { GameConfig } from "../module/config/GameConfig";
 import { GameQueryConfig } from "../module/config/GameQueryConfig";
 import { oops, version } from "./Oops";
@@ -93,6 +94,7 @@ export class Root extends Component {
 
             // 游戏界面管理
             oops.gui.mobileSafeArea = oops.config.game.mobileSafeArea;
+            this.initFairyGuiRoot();
             //@ts-ignore
             oops.gui.initLayer(this.gui, config.json.gui);
 
@@ -121,6 +123,22 @@ export class Root extends Component {
     /** 初始化游戏界面 */
     protected initGui() {
 
+    }
+
+    /** 初始化 FairyGUI 根节点 */
+    private initFairyGuiRoot() {
+        let root: fgui.GRoot = null!;
+        try {
+            root = fgui.GRoot.inst;
+        }
+        catch {
+            root = new fgui.GRoot();
+            (fgui.GRoot as any)._inst = root;
+        }
+        if (root.node.parent == null) {
+            this.gui.addChild(root.node);
+        }
+        (root as any).onWinResize();
     }
 
     /** 初始化游戏业务模块 */
