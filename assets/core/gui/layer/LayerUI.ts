@@ -76,6 +76,7 @@ export class LayerUI extends Node {
         }
         state.params = params ?? {};
         state.valid = true;
+        state.removing = false;
         this.ui_nodes.set(config.prefab, state);
         return state;
     }
@@ -170,7 +171,7 @@ export class LayerUI extends Node {
             if (release === false) this.ui_cache.set(state.config.prefab, state);
 
             // 界面移出舞台
-            if (state.valid) {
+            if (state.valid && !state.removing) {
                 const comp = state.node.getComponent(LayerUIElement);
                 comp && comp.remove(release);
             }

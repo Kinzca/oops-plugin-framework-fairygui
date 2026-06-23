@@ -64,6 +64,7 @@ export class FairyLayerUI extends LayerUI {
         }
         state.params = params ?? {};
         state.valid = true;
+        state.removing = false;
         this.ui_nodes.set(key, state);
         return state;
     }
@@ -176,7 +177,7 @@ export class FairyLayerUI extends LayerUI {
         const release = state.config.destroy!;
         if (release === false) this.ui_cache.set(state.key, state);
 
-        if (state.valid) {
+        if (state.valid && !state.removing) {
             const comp = state.node.getComponent(FairyLayerUIElement);
             comp && comp.remove(release);
         }
