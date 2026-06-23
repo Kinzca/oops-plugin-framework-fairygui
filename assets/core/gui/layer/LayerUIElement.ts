@@ -21,10 +21,13 @@ export class LayerUIElement extends Component {
     state: UIState = null!;
     /** 关闭窗口之前 */
     onClose: Function = null!;
+    protected removeFinished: boolean = false;
 
     /** 添加界面且界面设置到父节点之前 */
     add(): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
+            this.removeFinished = false;
+
             // 触发窗口组件上添加到父节点后的事件
             for (let i = 0; i < this.node.components.length; i++) {
                 const component: any = this.node.components[i];
@@ -48,6 +51,9 @@ export class LayerUIElement extends Component {
 
     /** 删除节点，该方法只能调用一次，将会触发onBeforeRemoved回调 */
     remove(isDestroy: boolean) {
+        if (this.state.removing) return;
+        this.state.removing = true;
+
         if (this.state.valid) {
             // 触发窗口移除舞台之前事件
             this.applyComponentsFunction(this.node, EventOnBeforeRemove, this.state.params.data);
@@ -67,6 +73,9 @@ export class LayerUIElement extends Component {
 
     /** 窗口关闭前动画处理完后的回调方法，主要用于释放资源 */
     private onBeforeRemoveNext(isDestroy: boolean) {
+        if (this.removeFinished) return;
+        this.removeFinished = true;
+
         this.state.valid = false;
 
         if (this.state.params && typeof this.state.params.onRemoved === "function") {
@@ -78,7 +87,8 @@ export class LayerUIElement extends Component {
 
         if (isDestroy) {
             // 释放界面显示对象
-            this.node.destroy();
+            if (this.node.parent) this.node.removeFromParent();
+            if (this.node.isValid) this.node.destroy();
 
             // 释放界面相关资源
             oops.res.release(this.state.config.prefab, this.state.config.bundle);
@@ -86,7 +96,7 @@ export class LayerUIElement extends Component {
             // oops.log.logView(`【界面管理】释放【${uip.config.prefab}】界面资源`);
         }
         else {
-            this.node.removeFromParent();
+            if (this.node.isValid) this.node.removeFromParent();
         }
 
         // 触发窗口组件上窗口移除之后的事件
@@ -104,6 +114,10 @@ export class LayerUIElement extends Component {
     }
 
     onDestroy() {
+        if (this.state && this.state.valid && !this.state.removing) {
+            this.state.valid = false;
+            this.onClose && this.onClose();
+        }
         this.state = null!;
         this.onClose = null!;
     }
@@ -119,6 +133,8 @@ export class UIState {
     params: UIParam = null!;
     /** 是否在使用状态 */
     valid: boolean = true;
+    /** 是否正在移除，防止同一界面重复进入关闭流程 */
+    removing: boolean = false;
     /** 界面根节点 */
     node: Node = null!;
 }

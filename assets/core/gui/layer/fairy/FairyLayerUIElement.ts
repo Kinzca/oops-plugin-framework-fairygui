@@ -28,6 +28,8 @@ export class FairyLayerUIElement extends LayerUIElement {
     /** 添加界面且界面设置到父节点之前 */
     add(): Promise<boolean> {
         return new Promise(async (resolve) => {
+            this.removeFinished = false;
+
             for (let i = 0; i < this.node.components.length; i++) {
                 const component: any = this.node.components[i];
                 const func = component[EventOnAdded];
@@ -53,6 +55,9 @@ export class FairyLayerUIElement extends LayerUIElement {
 
     /** 删除节点，该方法只能调用一次，将会触发onBeforeRemoved回调 */
     remove(isDestroy: boolean) {
+        if (this.state.removing) return;
+        this.state.removing = true;
+
         if (this.state.valid) {
             this.applyFairyComponentsFunction(this.node, EventOnBeforeRemove, this.state.params.data);
 
@@ -69,6 +74,9 @@ export class FairyLayerUIElement extends LayerUIElement {
     }
 
     private onFairyBeforeRemoveNext(isDestroy: boolean) {
+        if (this.removeFinished) return;
+        this.removeFinished = true;
+
         this.state.valid = false;
 
         if (this.state.params && typeof this.state.params.onRemoved === "function") {
@@ -79,8 +87,14 @@ export class FairyLayerUIElement extends LayerUIElement {
         this.applyFairyComponentsFunction(this.node, EventOnRemoved, this.state.params.data);
 
         if (isDestroy) {
-            if (this.view && !this.view.isDisposed) this.view.dispose();
-            else if (this.node && this.node.isValid) this.node.destroy();
+            if (this.view && !this.view.isDisposed) {
+                if (this.view.parent) this.view.removeFromParent();
+                this.view.dispose();
+            }
+            else if (this.node && this.node.isValid) {
+                if (this.node.parent) this.node.removeFromParent();
+                this.node.destroy();
+            }
 
             FairyPackageLoader.remove(this.state.config);
         }
@@ -100,6 +114,10 @@ export class FairyLayerUIElement extends LayerUIElement {
     }
 
     onDestroy() {
+        if (this.state && this.state.valid && !this.state.removing) {
+            this.state.valid = false;
+            this.onClose && this.onClose();
+        }
         this.view = null!;
         this.state = null!;
         this.onClose = null!;
