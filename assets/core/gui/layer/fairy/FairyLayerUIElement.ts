@@ -89,7 +89,7 @@ export class FairyLayerUIElement extends LayerUIElement {
         if (isDestroy) {
             if (this.view && !this.view.isDisposed) {
                 if (this.view.parent) this.view.removeFromParent();
-                this.view.dispose();
+                if (this.view.node && this.view.node.isValid) this.view.node.destroy();
             }
             else if (this.node && this.node.isValid) {
                 if (this.node.parent) this.node.removeFromParent();

@@ -232,7 +232,8 @@ export class FairyLayerUI extends LayerUI {
     onDestroy() {
         this.clear(true);
         if (this.fguiContainer && !this.fguiContainer.isDisposed) {
-            this.fguiContainer.dispose();
+            if (this.fguiContainer.parent) this.fguiContainer.removeFromParent();
+            if (this.fguiContainer.node && this.fguiContainer.node.isValid) this.fguiContainer.node.destroy();
         }
     }
 }
