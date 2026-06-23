@@ -44,6 +44,7 @@ export class Root extends Component {
         console.log(`Oops Framework ${version}`);
         this.enabled = false;
 
+        director.addPersistRootNode(this.node);
         this.initModule();
         this.iniStart();
         this.loadConfig().then();
