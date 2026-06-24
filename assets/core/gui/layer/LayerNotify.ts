@@ -4,7 +4,7 @@
  * @LastEditors: dgflash
  * @LastEditTime: 2022-09-02 13:44:12
  */
-import { BlockInputEvents, Node, instantiate } from "cc";
+import { BlockInputEvents, Node, instantiate, isValid } from "cc";
 import { EDITOR } from "cc/env";
 import { ViewUtil } from "../../utils/ViewUtil";
 import { PromptResType } from "../GuiEnum";
@@ -88,7 +88,8 @@ export class LayerNotify extends Node {
 
         // 超过3个提示，就施放第一个提示
         if (this.notify.children.length > 3) {
-            this.notify.children[0].destroy();
+            const child = this.notify.children[0];
+            if (isValid(child, true)) child.destroy();
         }
     }
 }

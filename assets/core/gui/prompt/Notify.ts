@@ -4,7 +4,7 @@
  * @LastEditors: bansomin
  * @LastEditTime: 2025-01-02 10:47:47
  */
-import { Animation, Component, Label, _decorator } from "cc";
+import { Animation, Component, Label, _decorator, isValid } from "cc";
 import { LanguageLabel } from "../../../libs/gui/language/LanguageLabel";
 
 const { ccclass, property } = _decorator;
@@ -27,7 +27,9 @@ export class Notify extends Component {
     }
 
     private onFinished() {
-        this.node.parent!.destroy();
+        if (this.node.parent && isValid(this.node.parent, true)) {
+            this.node.parent.destroy();
+        }
         this.onComplete && this.onComplete();
         this.onComplete = null!;
     }

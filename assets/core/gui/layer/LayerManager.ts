@@ -1,4 +1,4 @@
-import { Camera, Node, ResolutionPolicy, SafeArea, screen, view, warn } from "cc";
+import { Camera, Node, ResolutionPolicy, SafeArea, screen, view, warn, isValid } from "cc";
 import { oops } from "../../Oops";
 import { gui } from "../Gui";
 import { LayerDialog } from "./LayerDialog";
@@ -307,7 +307,7 @@ export class LayerManager {
             }
             else {
                 warn(`当前删除的 Node 不是通过界面管理器添加的`);
-                node.destroy();
+                if (isValid(node, true)) node.destroy();
             }
         }
     }

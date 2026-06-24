@@ -1,4 +1,4 @@
-import { Component, Node, _decorator } from "cc";
+import { Component, Node, _decorator, isValid } from "cc";
 import * as fgui from "fairygui-cc";
 import { LayerUIElement, UIParam, UIState } from "../LayerUIElement";
 import { FairyPackageLoader } from "./FairyPackageLoader";
@@ -87,19 +87,26 @@ export class FairyLayerUIElement extends LayerUIElement {
         this.applyFairyComponentsFunction(this.node, EventOnRemoved, this.state.params.data);
 
         if (isDestroy) {
-            if (this.view && !this.view.isDisposed) {
-                if (this.view.parent) this.view.removeFromParent();
-                if (this.view.node && this.view.node.isValid) this.view.node.destroy();
-            }
-            else if (this.node && this.node.isValid) {
-                if (this.node.parent) this.node.removeFromParent();
-                this.node.destroy();
-            }
-
-            FairyPackageLoader.remove(this.state.config);
+            const config = this.state.config;
+            this.disposeFairyView();
+            FairyPackageLoader.remove(config);
         }
         else if (this.view && !this.view.isDisposed) {
             this.view.removeFromParent();
+        }
+    }
+
+    private disposeFairyView(): void {
+        if (this.view && !this.view.isDisposed) {
+            const viewNode = this.view.node;
+            this.view.removeFromParent();
+            if (viewNode && isValid(viewNode, true)) viewNode.destroy();
+            return;
+        }
+
+        if (this.node && isValid(this.node, true)) {
+            if (this.node.parent) this.node.removeFromParent();
+            this.node.destroy();
         }
     }
 

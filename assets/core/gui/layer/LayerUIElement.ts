@@ -4,7 +4,7 @@
  * @LastEditors: dgflash
  * @LastEditTime: 2023-01-09 11:55:03
  */
-import { Component, Node, _decorator } from "cc";
+import { Component, Node, _decorator, isValid } from "cc";
 import { oops } from "../../Oops";
 import { UIConfig } from "./UIConfig";
 
@@ -88,7 +88,7 @@ export class LayerUIElement extends Component {
         if (isDestroy) {
             // 释放界面显示对象
             if (this.node.parent) this.node.removeFromParent();
-            if (this.node.isValid) this.node.destroy();
+            if (isValid(this.node, true)) this.node.destroy();
 
             // 释放界面相关资源
             oops.res.release(this.state.config.prefab, this.state.config.bundle);
@@ -96,7 +96,7 @@ export class LayerUIElement extends Component {
             // oops.log.logView(`【界面管理】释放【${uip.config.prefab}】界面资源`);
         }
         else {
-            if (this.node.isValid) this.node.removeFromParent();
+            if (isValid(this.node, true)) this.node.removeFromParent();
         }
 
         // 触发窗口组件上窗口移除之后的事件

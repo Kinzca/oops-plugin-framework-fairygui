@@ -18,6 +18,7 @@ import { StorageSecuritySimple } from "./common/storage/StorageSecuritySimple";
 import { TimerManager } from "./common/timer/TimerManager";
 import { GameManager } from "./game/GameManager";
 import { LayerManager } from "./gui/layer/LayerManager";
+import { DestroyGuard } from "./utils/DestroyGuard";
 
 const { property } = _decorator;
 
@@ -41,6 +42,7 @@ export class Root extends Component {
     private persist: Node = null!
 
     onLoad() {
+        DestroyGuard.install();
         console.log(`Oops Framework ${version}`);
         this.enabled = false;
 

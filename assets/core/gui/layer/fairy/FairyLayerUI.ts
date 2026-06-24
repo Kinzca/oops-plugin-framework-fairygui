@@ -1,4 +1,4 @@
-import { Node, SafeArea } from "cc";
+import { Node, SafeArea, isValid } from "cc";
 import * as fgui from "fairygui-cc";
 import { Collection } from "db://oops-framework/libs/collection/Collection";
 import { oops } from "../../../Oops";
@@ -232,8 +232,9 @@ export class FairyLayerUI extends LayerUI {
     onDestroy() {
         this.clear(true);
         if (this.fguiContainer && !this.fguiContainer.isDisposed) {
-            if (this.fguiContainer.parent) this.fguiContainer.removeFromParent();
-            if (this.fguiContainer.node && this.fguiContainer.node.isValid) this.fguiContainer.node.destroy();
+            const containerNode = this.fguiContainer.node;
+            this.fguiContainer.removeFromParent();
+            if (containerNode && isValid(containerNode, true)) containerNode.destroy();
         }
     }
 }

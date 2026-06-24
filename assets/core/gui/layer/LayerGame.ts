@@ -4,7 +4,7 @@
  * @LastEditors: dgflash
  * @LastEditTime: 2025-08-15 10:06:47
  */
-import { Node, NodePool, Vec3, warn } from "cc";
+import { Node, NodePool, Vec3, warn, isValid } from "cc";
 import { resLoader } from "../../common/loader/ResLoader";
 import { ViewUtil } from "../../utils/ViewUtil";
 import { LayerCustomType } from "./LayerEnum";
@@ -99,7 +99,7 @@ export class LayerGame extends Node {
                         resLoader.release(lge.params.config.prefab!, lge.params.config.bundle);
                     }
                 }
-                node.destroy();
+                if (isValid(node, true)) node.destroy();
             }
         }
         else {
